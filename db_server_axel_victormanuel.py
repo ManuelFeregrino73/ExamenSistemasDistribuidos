@@ -16,18 +16,20 @@ import pandas as pd
 
 # Handle Client: Recibe un socket de un cliente y una dirección IP.
 def handle_client(client_socket, addr): 
-    nickname = client_socket.recv(1024).decode()
-    print(f"El nickname es: '{nickname}'") #Se comprueba que salga bien el nuevo nombre del usuario dentro del servidor
+    #nickname = client_socket.recv(1024).decode()
+    #print(f"El nickname es: '{nickname}'") #Se comprueba que salga bien el nuevo nombre del usuario dentro del servidor
     #usuario = {} #Declare el diccionario del nuevo usuario
     #test = cuentas.get(nickname,False)#Forma de saber si el usuario existe del profe
     repetir = 'S'
     while repetir == 'S':
+        print("Se inicio otra vez el ciclo")
         try:
             opcion = client_socket.recv(1024).decode() #Recibe la opcion del cliente
             if not opcion:
                 print(f"Conexion con '{addr}' cerrada.")
                 break
-            if(opcion == 1): #CONSULTAS 
+            if(opcion == "1"): #CONSULTAS 
+                print(f"El cliente '{addr}' eligio hacer una consulta")
                 Criterio = client_socket.recv(1024).decode() #Recibe el criterio del cliente
                 if not Criterio:
                     print(f"Conexion con '{addr}' cerrada.")
@@ -38,6 +40,7 @@ def handle_client(client_socket, addr):
                         print(f"Conexion con '{addr}' cerrada.")
                         break
                     Mensaje = consultas(Nombre,"Nombre",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
+                    print(f"El mensaje es: '{Mensaje}'")
                     broadcastAlClienteActual(Mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
                 elif(Criterio == "2"): #EMAIL
                     Email = client_socket.recv(1024).decode()
@@ -45,17 +48,20 @@ def handle_client(client_socket, addr):
                         print(f"Conexion con '{addr}' cerrada.")
                         break
                     Mensaje = consultas(Email,"Email",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
+                    print(f"El mensaje es: '{Mensaje}'")
                     broadcastAlClienteActual(Mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
                 elif(Criterio == "3"): #EDAD
                     Edad = client_socket.recv(1024).decode() #Recibo primero la edad
                     if not Edad:
                         print(f"Conexion con '{addr}' cerrada.")
                         break
+                    Edad = int(Edad)
                     Operador = client_socket.recv(1024).decode() #Luego recibo el operador (Si es '=', '>' ó '<')
                     if not Operador:
                         print(f"Conexion con '{addr}' cerrada.")
                         break
                     Mensaje = consultas(Edad,"Edad",Operador) #Le mandamos a la funcion 'consultas' el valor de edad, el nombre de la columna y su operador
+                    print(f"El mensaje es: '{Mensaje}'")
                     broadcastAlClienteActual(Mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
                 elif(Criterio == "4"): #GENERO
                     Genero = client_socket.recv(1024).decode()
@@ -63,8 +69,10 @@ def handle_client(client_socket, addr):
                         print(f"Conexion con '{addr}' cerrada.")
                         break
                     Mensaje = consultas(Genero,"Genero",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
+                    print(f"El mensaje es: '{Mensaje}'")
                     broadcastAlClienteActual(Mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
-            elif(opcion == 2): #INSERTAR REGISTROS
+            elif(opcion == "2"): #INSERTAR REGISTROS
+                print(f"El cliente '{addr}' eligio hacer una insercion")
                 Nombre = client_socket.recv(1024).decode()
                 if not Nombre:
                     print(f"Conexion con '{addr}' cerrada.")
@@ -86,7 +94,11 @@ def handle_client(client_socket, addr):
                     print(f"Conexion con '{addr}' cerrada.")
                     break
                 Mensaje = "La inserción se realizo y es la siguiente: '"+insercion(Nombre,Password,Genero,Edad,Email)+"'." #FORMAMOS EL MENSAJE QUE SE ENVIA AL CLIENTE
+                print(f"El mensaje es: '{Mensaje}'")
                 broadcastAlClienteActual(Mensaje, client_socket) #ENVIAMOS EL MENSAJE
+            else:
+                print("ERROR, saliendo del programa")
+                repetir = 'N'
 
 
             #message = client_socket.recv(1024).decode()
@@ -131,6 +143,7 @@ def insercion(nombre, password, genero, edad, email): #INSERCION DE REGISTROS (M
     with open("DB.csv","a") as file:
         file.write(sentenciainsert)
     return sentenciainsert
+    
     
 
 # Start Server: Función que inicia el servidor, en esta función se levantan
