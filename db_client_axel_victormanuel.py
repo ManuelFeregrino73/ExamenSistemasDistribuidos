@@ -136,7 +136,7 @@ def send_data():
                             print("ERROR!!! no ingresaste el numero de un operador valido")
                         else:    #NO ELEGISTE NI CONSULTAS NI REGISTROS
                             print("Error... la opción que elegiste no es valida")
-                            repetirConsulta2 = input("No escogiste una de las 3 opciones. Desea volver a intentarlo? S/N " )
+                        repetirConsulta2 = input("No escogiste una de las 3 opciones. Desea volver a intentarlo? S/N " )
                     
                
                 elif(Criterio == "4"): #SEXO
@@ -157,10 +157,10 @@ def send_data():
                                 break
                         else:
                             print("Error... La opción que elegiste no es valida. Debe elegir entre 0 para Masculino o 1 para Femenino ")
-                            repetirConsulta3 = input("Desea intentarlo nuevamente?(S/N):") #REPETIR CICLO?
+                        repetirConsulta3 = input("Desea intentarlo nuevamente?(S/N):") #REPETIR CICLO?
                 else:
                     print("Error... La opción que elegiste no es valida")
-                    repetirConsulta1 = input("Desea intentarlo nuevamente?(S/N):") #REPETIR CICLO?
+                repetirConsulta1 = input("Desea intentarlo nuevamente?(S/N):") #REPETIR CICLO?
         elif(opcion == 2): #REGISTROS
             Nombre = input(f"Ingresa el nombre del nuevo registro: ") #INGRESAR NOMBRE
             try:
@@ -198,7 +198,7 @@ def send_data():
             
         else: #NO ELEGISTE NI CONSULTAS NI REGISTROS
             print("Error... La opción que elegiste no es valida")
-            repetir == input("Desea intentarlo nuevamente?(S/N):") #REPETIR CICLO?
+        repetir == input("Desea intentarlo nuevamente?(S/N):") #REPETIR CICLO?
             
 
 
