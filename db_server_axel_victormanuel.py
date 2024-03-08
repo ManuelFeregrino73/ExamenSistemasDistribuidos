@@ -112,6 +112,8 @@ def handle_client(client_socket, addr):
                 broadcastAlClienteActual(Mensaje, client_socket) #ENVIAMOS EL MENSAJE
                 print("Esperando 5 segundos antes de volver a iniciar el ciclo")# Establecer un tiempo de espera para la recepción de datos
                 time.sleep(5)
+            elif(opcion == "N"):
+                broadcastAlClienteActual(opcion, client_socket) 
             else:
                 print("ERROR, saliendo del programa")
                 repetir = 'N'
@@ -152,7 +154,6 @@ def insercion(nombre, password, genero, edad, email): #INSERCION DE REGISTROS (M
     with open("DB.csv","a") as file:
         file.write(sentenciainsert)
     return sentenciainsert
-    
     
 
 # Start Server: Función que inicia el servidor, en esta función se levantan
