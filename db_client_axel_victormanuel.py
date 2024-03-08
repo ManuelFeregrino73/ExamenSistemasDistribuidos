@@ -7,10 +7,7 @@ Feregrino Zamorano Victor Manuel
 import socket
 import threading
 import time
-#import queue
 
-
-#data_queue = queue.Queue() # Crear una cola para compartir datos entre hilos
 InformacionRecibida = []
 
 #MiUsuario = "Absalon" #Ejemplo de un usuario
@@ -37,7 +34,6 @@ def receive_information():
                 break
             InformacionRecibida.append(message)
             print(f"El mensaje ha sido recibido y se ha agregado a la lista 'InformacionRecibida': '{InformacionRecibida}'")
-            #data_queue.put(message)  # Agregar el mensaje a la cola
             #print(message)
         except Exception as e:
             print(f"Error recibiendo información: '{e}'")
@@ -88,7 +84,6 @@ def send_data():
                     except Exception as e:
                         print(f"Error recibiendo mensaje: '{e}'")
                         break
-                    #infoConsulta = data_queue.get()
                     print("El mensaje va a ser utilizado")
                     print("Esperando 5 segundos para recibir el mensaje")
                     time.sleep(5) #Creo que es necesario usar time para poder captar la informacion del servidor
@@ -214,7 +209,6 @@ def send_data():
                 print(f"Error recibiendo mensaje: '{e}'")
                 break
             print("Se han enviado los datos al servidor")
-            #infoinsercion = data_queue.get() # Obtener el mensaje de la cola
             infoinsercion = InformacionRecibida[0]
             InformacionRecibida.pop(0)
             print(f"Se obtuvo este resultado: '{infoinsercion}'") #Se imprime la informacion con el formato dado por el servidor
