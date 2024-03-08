@@ -6,9 +6,12 @@ Feregrino Zamorano Victor Manuel
 
 import socket
 import threading
-import queue
+import time
+#import queue
 
-data_queue = queue.Queue() # Crear una cola para compartir datos entre hilos
+
+#data_queue = queue.Queue() # Crear una cola para compartir datos entre hilos
+InformacionRecibida = []
 
 #MiUsuario = "Absalon" #Ejemplo de un usuario
 
@@ -32,7 +35,9 @@ def receive_information():
                 print("Terminando el programa")
                 repetir = 'N'
                 break
-            data_queue.put(message)  # Agregar el mensaje a la cola
+            InformacionRecibida.append(message)
+            print(f"El mensaje ha sido recibido y se ha agregado a la lista 'InformacionRecibida': '{InformacionRecibida}'")
+            #data_queue.put(message)  # Agregar el mensaje a la cola
             #print(message)
         except Exception as e:
             print(f"Error recibiendo información: '{e}'")
@@ -83,7 +88,14 @@ def send_data():
                     except Exception as e:
                         print(f"Error recibiendo mensaje: '{e}'")
                         break
-                    infoConsulta = data_queue.get()
+                    #infoConsulta = data_queue.get()
+                    print("El mensaje va a ser utilizado")
+                    print("Esperando 5 segundos para recibir el mensaje")
+                    time.sleep(5) #Creo que es necesario usar time para poder captar la informacion del servidor
+                    infoConsulta = InformacionRecibida[0]
+                    print(f"El mensaje debería verse asi: '{InformacionRecibida[0]}'")
+                    InformacionRecibida.pop(0)
+                    print(f"El mensaje ha sido borrado de informacionRecibida: '{InformacionRecibida}'")
                     print(f"El resultado de la consulta por el nombre '{Nombre}' es: '{infoConsulta}'")
                 elif(Criterio == "2"): #EMAIL
                     Email = input(f"Ahora escribe el email: ")
@@ -92,12 +104,15 @@ def send_data():
                     except Exception as e:
                         print(f"Error recibiendo mensaje: '{e}'")
                         break
-                    infoConsulta = data_queue.get()
+                    print("Esperando 5 segundos para recibir el mensaje")
+                    time.sleep(5) #Creo que es necesario usar time para poder captar la informacion del servidor
+                    infoConsulta = InformacionRecibida[0]
+                    InformacionRecibida.pop(0)
                     print(f"El resultado de la consulta por el email '{Email}' es: '{infoConsulta}'")
                 elif(Criterio == "3"): #EDAD
                     repetirConsulta2 = 'S'
                     while repetirConsulta2 == 'S':
-                        Edad = int(input(f"Ahora escribe la edad: "))
+                        Edad = input(f"Ahora escribe la edad: ")
                         try:
                             server_socket.send(Edad.encode())
                         except Exception as e:
@@ -108,17 +123,21 @@ def send_data():
                         print("2. Mayor que (Operador '>')")
                         print("3. Menor que (Operador '<')")
                         Operador = input(f"Ingresa el numero del operador que quieres usar: ")
-                        if(Operador>=1 or Operador<=3): #VERIFICAMOS QUE HAYA SELECCIONADO UNA OPCION VALIDA DE LOS OPERADORES
+                        oper = int(Operador)
+                        if(oper>=1 or oper<=3): #VERIFICAMOS QUE HAYA SELECCIONADO UNA OPCION VALIDA DE LOS OPERADORES
                             try:
                                 server_socket.send(Operador.encode())
                             except Exception as e:
                                 print(f"Error recibiendo mensaje: '{e}'")
                                 break
-                            infoConsulta = data_queue.get()
-                            print(f"El resultado de la consulta por la edad '{Edad}' es: '{infoConsulta}'")
+                            print("Esperando 5 segundos para recibir el mensaje")
+                            time.sleep(5) #Creo que es necesario usar time para poder captar la informacion del servidor
+                            infoConsulta = InformacionRecibida[0]
+                            InformacionRecibida.pop(0)
+                            print(f"El resultado de la consulta por la edad '{Edad}' con el operador numero '{oper}' es: '{infoConsulta}'")
                         else:
                             print("ERROR!!! no ingresaste el numero de un operador valido")
-                        repetirConsulta2 = input("No escogiste una de las 3 opciones. Desea volver a intentarlo? S/N " )
+                        repetirConsulta2 = input("Desea volver a intentar una consulta por Edad? S/N " )
                         """
                         elif(Operador==2): #SELECCIONO MAYOR QUE
                             try:
@@ -149,7 +168,9 @@ def send_data():
                             except Exception as e:
                                 print(f"Error recibiendo mensaje: '{e}'")
                                 break
-                            infoConsulta = data_queue.get()
+                            print("Esperando 5 segundos para recibir el mensaje")
+                            time.sleep(5) #Creo que es necesario usar time para poder captar la informacion del servidor
+                            infoConsulta = InformacionRecibida[0]
                             print(f"El resultado de la consulta por el sexo '{Genero}' es: '{infoConsulta}'")
                         else:
                             print("Error... La opción que elegiste no es valida. Debe elegir entre 0 para Masculino o 1 para Femenino ")
@@ -193,7 +214,9 @@ def send_data():
                 print(f"Error recibiendo mensaje: '{e}'")
                 break
             print("Se han enviado los datos al servidor")
-            infoinsercion = data_queue.get() # Obtener el mensaje de la cola
+            #infoinsercion = data_queue.get() # Obtener el mensaje de la cola
+            infoinsercion = InformacionRecibida[0]
+            InformacionRecibida.pop(0)
             print(f"Se obtuvo este resultado: '{infoinsercion}'") #Se imprime la informacion con el formato dado por el servidor
             print("Ya termino la parte de recibir informacion")
             repetir = input("Desea realizar otra opcion?(S/N):") #REPETIR CICLO?
