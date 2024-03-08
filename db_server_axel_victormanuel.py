@@ -7,6 +7,8 @@ Feregrino Zamorano Victor Manuel
 import socket
 import threading
 import pandas as pd
+import time
+import json
 
 # Leer la documentación siguiendo este orden:
 # 1. Leer if __name__ == "__main__":
@@ -18,8 +20,6 @@ import pandas as pd
 def handle_client(client_socket, addr): 
     #nickname = client_socket.recv(1024).decode()
     #print(f"El nickname es: '{nickname}'") #Se comprueba que salga bien el nuevo nombre del usuario dentro del servidor
-    #usuario = {} #Declare el diccionario del nuevo usuario
-    #test = cuentas.get(nickname,False)#Forma de saber si el usuario existe del profe
     repetir = 'S'
     while repetir == 'S':
         print("Se inicio otra vez el ciclo")
@@ -36,20 +36,26 @@ def handle_client(client_socket, addr):
                     break
                 if(Criterio == "1"): #NOMBRE
                     Nombre = client_socket.recv(1024).decode()
-                    if not Edad:
+                    if not Nombre:
                         print(f"Conexion con '{addr}' cerrada.")
                         break
+                    print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Nombre}','Nombre','1')")
                     Mensaje = consultas(Nombre,"Nombre",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
-                    print(f"El mensaje es: '{Mensaje}'")
-                    broadcastAlClienteActual(Mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
+                    data_json = Mensaje.to_json(orient="records")
+                    mensaje = json.dumps({"accion": "datos", "datos": data_json})
+                    print(f"El mensaje es: '{mensaje}'")
+                    broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
                 elif(Criterio == "2"): #EMAIL
                     Email = client_socket.recv(1024).decode()
                     if not Email:
                         print(f"Conexion con '{addr}' cerrada.")
                         break
+                    print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Email}','Email','1')")
                     Mensaje = consultas(Email,"Email",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
-                    print(f"El mensaje es: '{Mensaje}'")
-                    broadcastAlClienteActual(Mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
+                    data_json = Mensaje.to_json(orient="records")
+                    mensaje = json.dumps({"accion": "datos", "datos": data_json})
+                    print(f"El mensaje es: '{mensaje}'")
+                    broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
                 elif(Criterio == "3"): #EDAD
                     Edad = client_socket.recv(1024).decode() #Recibo primero la edad
                     if not Edad:
@@ -60,17 +66,25 @@ def handle_client(client_socket, addr):
                     if not Operador:
                         print(f"Conexion con '{addr}' cerrada.")
                         break
+                    print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Edad}','Edad','1')")
                     Mensaje = consultas(Edad,"Edad",Operador) #Le mandamos a la funcion 'consultas' el valor de edad, el nombre de la columna y su operador
-                    print(f"El mensaje es: '{Mensaje}'")
-                    broadcastAlClienteActual(Mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
+                    data_json = Mensaje.to_json(orient="records")
+                    mensaje = json.dumps({"accion": "datos", "datos": data_json})
+                    print(f"El mensaje es: '{mensaje}'")
+                    broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
                 elif(Criterio == "4"): #GENERO
                     Genero = client_socket.recv(1024).decode()
                     if not Genero:
                         print(f"Conexion con '{addr}' cerrada.")
                         break
+                    print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Genero}','Genero','1')")
                     Mensaje = consultas(Genero,"Genero",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
-                    print(f"El mensaje es: '{Mensaje}'")
-                    broadcastAlClienteActual(Mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
+                    data_json = Mensaje.to_json(orient="records")
+                    mensaje = json.dumps({"accion": "datos", "datos": data_json})
+                    print(f"El mensaje es: '{mensaje}'")
+                    broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
+                print("Esperando 5 segundos antes de volver a iniciar el ciclo")# Establecer un tiempo de espera para la recepción de datos
+                time.sleep(5)
             elif(opcion == "2"): #INSERTAR REGISTROS
                 print(f"El cliente '{addr}' eligio hacer una insercion")
                 Nombre = client_socket.recv(1024).decode()
@@ -96,16 +110,11 @@ def handle_client(client_socket, addr):
                 Mensaje = "La inserción se realizo y es la siguiente: '"+insercion(Nombre,Password,Genero,Edad,Email)+"'." #FORMAMOS EL MENSAJE QUE SE ENVIA AL CLIENTE
                 print(f"El mensaje es: '{Mensaje}'")
                 broadcastAlClienteActual(Mensaje, client_socket) #ENVIAMOS EL MENSAJE
+                print("Esperando 5 segundos antes de volver a iniciar el ciclo")# Establecer un tiempo de espera para la recepción de datos
+                time.sleep(5)
             else:
                 print("ERROR, saliendo del programa")
                 repetir = 'N'
-
-
-            #message = client_socket.recv(1024).decode()
-            #if not message:
-                #print(f"Conexion con '{addr}' cerrada.")
-                #break
-            #broadcastAlClienteActual(message, client_socket)
         except Exception as e:
             client_socket.close()
             print(f"Conexion con cliente '{addr}' perdida por: '{e}'")
@@ -130,13 +139,13 @@ def consultas(valor, criterio, operador): #CONSULTAS GENERALIZADAS (Pide primero
     data = pd.read_csv("DB.csv")
     if(operador==1):
         print("El operador es 'Igual a'")
-        return data[data[f"{criterio}"]==valor] #Se devuelve el resultado de la consulta
+        return data[data[criterio]==valor] #Se devuelve el resultado de la consulta
     elif(operador==2):
         print("El operador es 'Mayor que'")
-        return data[data[f"{criterio}"]>valor] #Se devuelve el resultado de la consulta
+        return data[data[criterio]>valor] #Se devuelve el resultado de la consulta
     elif(operador==3):
         print("El operador es 'Menor que'")
-        return data[data[f"{criterio}"]<valor] #Se devuelve el resultado de la consulta
+        return data[data[criterio]<valor] #Se devuelve el resultado de la consulta
 
 def insercion(nombre, password, genero, edad, email): #INSERCION DE REGISTROS (Muy parecida a una insercion implicita)
     sentenciainsert = f"{nombre},{password},{genero},{edad},{email}\n"
