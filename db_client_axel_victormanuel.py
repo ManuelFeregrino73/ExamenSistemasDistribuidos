@@ -6,6 +6,9 @@ Feregrino Zamorano Victor Manuel
 
 import socket
 import threading
+import queue
+
+data_queue = queue.Queue() # Crear una cola para compartir datos entre hilos
 
 #MiUsuario = "Absalon" #Ejemplo de un usuario
 
@@ -17,9 +20,9 @@ def receive_information():
             if(message=='N'):
                 print("Terminando el programa")
                 repetir = 'N'
-            #if(message==123):
-
-            print(message)
+                break
+            data_queue.put(message)  # Agregar el mensaje a la cola
+            #print(message)
         except Exception as e:
             print(f"Error recibiendo información: '{e}'")
             break
@@ -36,7 +39,12 @@ def send_data():
         print("-------------------------")
         print("1. Buscar Informacion (Consultar)")
         print("2. Ingresar un registro")
-        opcion = input(f"Ingresa una opcion: ")
+        try:
+            opcion = input("Ingresa una opción: ")
+        except EOFError:
+            print("\nPrograma interrumpido. Saliendo...")
+            opcion = None  # o cualquier otra acción que desees tomar al interrumpir el programa
+        #opcion = input(f"Ingresa una opcion: ")
         try:
             server_socket.send(opcion.encode())
         except Exception as e:
@@ -63,12 +71,8 @@ def send_data():
                     except Exception as e:
                         print(f"Error recibiendo mensaje: '{e}'")
                         break
-                    try:
-                        infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
-                        print(f"El resultado de la consulta por el NOMBRE '{Nombre}' es: '{infoConsulta}'")
-                    except Exception as e:
-                        print(f"Error recibiendo información: '{e}'")
-                        break
+                    infoConsulta = data_queue.get()
+                    print(f"El resultado de la consulta por el nombre '{Nombre}' es: '{infoConsulta}'")
                 elif(Criterio == "2"): #EMAIL
                     Email = input(f"Escribe el EMAIL a buscar: ")
                     try:
@@ -76,12 +80,8 @@ def send_data():
                     except Exception as e:
                         print(f"Error recibiendo mensaje: '{e}'")
                         break
-                    try:
-                        infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
-                        print(f"El resultado de la consulta por el EMAIL '{Email}' es: '{infoConsulta}'")
-                    except Exception as e:
-                        print(f"Error recibiendo información: '{e}'")
-                        break
+                    infoConsulta = data_queue.get()
+                    print(f"El resultado de la consulta por el email '{Email}' es: '{infoConsulta}'")
                 elif(Criterio == "3"): #EDAD
 
                     repetirConsulta2 = 'S'
@@ -97,43 +97,14 @@ def send_data():
                         print("2. Mayor que (Operador '>')")
                         print("3. Menor que (Operador '<')")
                         Operador = input(f"Ingresa el numero del operador que quieres usar: ")
-                        if(Operador==1): #SELECCIONO IGUAL QUE
+                        if(Operador>=1 or Operador<=3): #VERIFICAMOS QUE HAYA SELECCIONADO UNA OPCION VALIDA DE LOS OPERADORES
                             try:
                                 server_socket.send(Operador.encode())
                             except Exception as e:
                                 print(f"Error recibiendo mensaje: '{e}'")
                                 break
-                            try:
-                                infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
-                                print(f"El resultado de la consulta por la edad '{Edad}' es: '{infoConsulta}'")
-                            except Exception as e:
-                                print(f"Error recibiendo información: '{e}'")
-                                break
-                        elif(Operador==2): #SELECCIONO MAYOR QUE
-                            try:
-                                server_socket.send(Operador.encode())
-                            except Exception as e:
-                                print(f"Error recibiendo mensaje: '{e}'")
-                                break
-                            try:
-                                infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
-                                print(f"El resultado de la consulta por la edad '{Edad}' es: '{infoConsulta}'")
-                            except Exception as e:
-                                print(f"Error recibiendo información: '{e}'")
-                                break
-                        elif(Operador==3): #SELECCIONO MENOR QUE
-                            try:
-                                server_socket.send(Operador.encode())
-                            except Exception as e:
-                                print(f"Error recibiendo mensaje: '{e}'")
-                                break
-                            try:
-                                infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
-                                print(f"El resultado de la consulta por la edad '{Edad}' es: '{infoConsulta}'")
-                            except Exception as e:
-                                print(f"Error recibiendo información: '{e}'")
-                                break
-                            print("ERROR!!! no ingresaste el numero de un operador valido")
+                            infoConsulta = data_queue.get()
+                            print(f"El resultado de la consulta por la edad '{Edad}' es: '{infoConsulta}'")
                         else:    #NO ELEGISTE NI CONSULTAS NI REGISTROS
                             print("Error... la opción que elegiste no es valida")
                         repetirConsulta2 = input("No escogiste una de las 3 opciones. Desea volver a intentarlo? S/N " )
@@ -149,12 +120,8 @@ def send_data():
                             except Exception as e:
                                 print(f"Error recibiendo mensaje: '{e}'")
                                 break
-                            try:
-                                infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
-                                print(f"El resultado de la consulta por el sexo '{Genero}' es: '{infoConsulta}'")
-                            except Exception as e:
-                                print(f"Error recibiendo información: '{e}'")
-                                break
+                            infoConsulta = data_queue.get()
+                            print(f"El resultado de la consulta por el sexo '{Genero}' es: '{infoConsulta}'")
                         else:
                             print("Error... La opción que elegiste no es valida. Debe elegir entre 0 para Masculino o 1 para Femenino ")
                         repetirConsulta3 = input("Desea intentarlo nuevamente?(S/N):") #REPETIR CICLO?
@@ -195,7 +162,10 @@ def send_data():
             except Exception as e:
                 print(f"Error recibiendo mensaje: '{e}'")
                 break
-            
+            print("Se han enviado los datos al servidor")
+            infoinsercion = data_queue.get() # Obtener el mensaje de la cola
+            print(f"Se obtuvo este resultado: '{infoinsercion}'") #Se imprime la informacion con el formato dado por el servidor
+            print("Ya termino la parte de recibir informacion")
         else: #NO ELEGISTE NI CONSULTAS NI REGISTROS
             print("Error... La opción que elegiste no es valida")
         repetir == input("Desea intentarlo nuevamente?(S/N):") #REPETIR CICLO?
