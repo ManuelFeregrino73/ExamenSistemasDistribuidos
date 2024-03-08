@@ -23,26 +23,48 @@ def handle_client(client_socket, addr):
     repetir = 'S'
     while repetir == 'S':
         try:
-            opcion = client_socket.recv(1024).decode()
+            opcion = client_socket.recv(1024).decode() #Recibe la opcion del cliente
             if not opcion:
                 print(f"Conexion con '{addr}' cerrada.")
                 break
             if(opcion == 1): #CONSULTAS 
-                Criterio = client_socket.recv(1024).decode()
+                Criterio = client_socket.recv(1024).decode() #Recibe el criterio del cliente
                 if not Criterio:
                     print(f"Conexion con '{addr}' cerrada.")
                     break
                 if(Criterio == "1"): #NOMBRE
                     Nombre = client_socket.recv(1024).decode()
+                    if not Edad:
+                        print(f"Conexion con '{addr}' cerrada.")
+                        break
+                    Mensaje = consultas(Nombre,"Nombre",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
+                    broadcastAlClienteActual(Mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
                 elif(Criterio == "2"): #EMAIL
                     Email = client_socket.recv(1024).decode()
-                elif(Criterio == "3"): #EMAIL
-                    Edad = client_socket.recv(1024).decode()
-                    Operador = client_socket.recv(1024).decode()
-                elif(Criterio == "4"): #EMAIL
+                    if not Email:
+                        print(f"Conexion con '{addr}' cerrada.")
+                        break
+                    Mensaje = consultas(Email,"Email",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
+                    broadcastAlClienteActual(Mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
+                elif(Criterio == "3"): #EDAD
+                    Edad = client_socket.recv(1024).decode() #Recibo primero la edad
+                    if not Edad:
+                        print(f"Conexion con '{addr}' cerrada.")
+                        break
+                    Operador = client_socket.recv(1024).decode() #Luego recibo el operador (Si es '=', '>' ó '<')
+                    if not Operador:
+                        print(f"Conexion con '{addr}' cerrada.")
+                        break
+                    Mensaje = consultas(Edad,"Edad",Operador) #Le mandamos a la funcion 'consultas' el valor de edad, el nombre de la columna y su operador
+                    broadcastAlClienteActual(Mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
+                elif(Criterio == "4"): #GENERO
                     Genero = client_socket.recv(1024).decode()
-
-            elif(opcion == 2): #REGISTROS
+                    if not Genero:
+                        print(f"Conexion con '{addr}' cerrada.")
+                        break
+                    Mensaje = consultas(Genero,"Genero",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
+                    broadcastAlClienteActual(Mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
+            elif(opcion == 2): #INSERTAR REGISTROS
                 Nombre = client_socket.recv(1024).decode()
                 if not Nombre:
                     print(f"Conexion con '{addr}' cerrada.")
@@ -63,8 +85,8 @@ def handle_client(client_socket, addr):
                 if not Email:
                     print(f"Conexion con '{addr}' cerrada.")
                     break
-                Mensaje = insercion(Nombre,Password,Genero,Edad,Email)
-                broadcastAlClienteActual(Mensaje, client_socket)
+                Mensaje = "La inserción se realizo y es la siguiente: '"+insercion(Nombre,Password,Genero,Edad,Email)+"'." #FORMAMOS EL MENSAJE QUE SE ENVIA AL CLIENTE
+                broadcastAlClienteActual(Mensaje, client_socket) #ENVIAMOS EL MENSAJE
 
 
             #message = client_socket.recv(1024).decode()
@@ -77,7 +99,7 @@ def handle_client(client_socket, addr):
             print(f"Conexion con cliente '{addr}' perdida por: '{e}'")
             break
 
-def broadcastAlClienteActual(message, sender_socket):
+def broadcastAlClienteActual(message, sender_socket): #Funcion para enviar mensajes al cliente que esta solicitando datos
     print("Entra al metodo 'broadcastToCurrentClient'")
     for client in clients:
         print(f"El socket del cliente es: '{client}', y el del argumento es: '{sender_socket}'")
@@ -86,25 +108,25 @@ def broadcastAlClienteActual(message, sender_socket):
                 #print(message.encode())
                 #print(f"{cuentas[nombreUsuario]}:{message.encode()}")
                 #mensaje = "\n"+nombreUsuario+": "+message
-                mensaje = "Tu consulta es: "+message
-                print(f"El mensaje debería verse así: '{mensaje}'")
-                client.send(mensaje.encode())
+                #mensaje = "Tu consulta es: "+message
+                print(f"El mensaje debería verse así: '{message}'")
+                client.send(message.encode())
             except Exception as e:
                 print(f"Error enviando mensaje: '{e}'")
 
-def consultas(valor, criterio, operador): #CONSULTAS GENERALIZADAS
+def consultas(valor, criterio, operador): #CONSULTAS GENERALIZADAS (Pide primero el valor que se va a comparar, el criterio seria la columna, y el operador es el operador de comparacion)
     data = pd.read_csv("DB.csv")
     if(operador==1):
         print("El operador es 'Igual a'")
-        data[data[f"{criterio}"]==valor]
+        return data[data[f"{criterio}"]==valor] #Se devuelve el resultado de la consulta
     elif(operador==2):
         print("El operador es 'Mayor que'")
-        data[data[f"{criterio}"]>valor]
+        return data[data[f"{criterio}"]>valor] #Se devuelve el resultado de la consulta
     elif(operador==3):
         print("El operador es 'Menor que'")
-        data[data[f"{criterio}"]<valor]
+        return data[data[f"{criterio}"]<valor] #Se devuelve el resultado de la consulta
 
-def insercion(nombre, password, genero, edad, email): #INSERCION DE REGISTROS
+def insercion(nombre, password, genero, edad, email): #INSERCION DE REGISTROS (Muy parecida a una insercion implicita)
     sentenciainsert = f"{nombre},{password},{genero},{edad},{email}\n"
     with open("DB.csv","a") as file:
         file.write(sentenciainsert)
