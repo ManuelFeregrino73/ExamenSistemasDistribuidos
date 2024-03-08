@@ -112,7 +112,7 @@ def send_data():
                
                 elif(Criterio == "4"): #SEXO
                     repetirConsulta3 = 'S'
-                    while repetirConsulta3 == 'S'
+                    while repetirConsulta3 == 'S':
                         Genero = input(f"Ahora escribe el sexo (0 para Masculino, 1 para Femenino): ")
                         if(Genero==0 or Genero == 1): # TIENE QUE INGRESAR EL SEXO MASCULINO O FEMENINO
                             try:
