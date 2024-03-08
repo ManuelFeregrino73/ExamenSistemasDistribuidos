@@ -7,8 +7,6 @@ Feregrino Zamorano Victor Manuel
 import socket
 import threading
 import pandas as pd
-#import time
-#import json
 
 # Leer la documentación siguiendo este orden:
 # 1. Leer if __name__ == "__main__":
