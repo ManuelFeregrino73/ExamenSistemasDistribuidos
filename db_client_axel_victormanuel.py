@@ -44,20 +44,20 @@ def send_data():
             break
         if(opcion == 1): #CONSULTAS 
             repetirConsulta1 = 'S'
-            while  repetirConsulta == 'S':
-                print("Elige en base a que criterio quieres hacerlo: ")
+            while  repetirConsulta1 == 'S':
+                print("CRITERIOS DE CONSULTA: ")
                 print("1. Nombre")
                 print("2. Email")
                 print("3. Edad")
                 print("4. Genero")
-                Criterio = input(f"Ingresa una opcion: ")
+                Criterio = input(f"Ingresa una opcion a buscar: ")
                 try:
                     server_socket.send(Criterio.encode())
                 except Exception as e:
                     print(f"Error recibiendo mensaje: '{e}'")
                     break
                 if(Criterio == "1"): #NOMBRE
-                    Nombre = input(f"Ahora escribe el nombre: ")
+                    Nombre = input(f"Escribe el NOMBRE a buscar: ")
                     try:
                         server_socket.send(Nombre.encode())
                     except Exception as e:
@@ -65,12 +65,12 @@ def send_data():
                         break
                     try:
                         infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
-                        print(f"El resultado de la consulta por el nombre '{Nombre}' es: '{infoConsulta}'")
+                        print(f"El resultado de la consulta por el NOMBRE '{Nombre}' es: '{infoConsulta}'")
                     except Exception as e:
                         print(f"Error recibiendo información: '{e}'")
                         break
                 elif(Criterio == "2"): #EMAIL
-                    Email = input(f"Ahora escribe el email: ")
+                    Email = input(f"Escribe el EMAIL a buscar: ")
                     try:
                         server_socket.send(Email.encode())
                     except Exception as e:
@@ -78,81 +78,89 @@ def send_data():
                         break
                     try:
                         infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
-                        print(f"El resultado de la consulta por el email '{Email}' es: '{infoConsulta}'")
+                        print(f"El resultado de la consulta por el EMAIL '{Email}' es: '{infoConsulta}'")
                     except Exception as e:
                         print(f"Error recibiendo información: '{e}'")
                         break
                 elif(Criterio == "3"): #EDAD
-                    Edad = int(input(f"Ahora escribe la edad: "))
-                    try:
-                        server_socket.send(Edad.encode())
-                    except Exception as e:
-                        print(f"Error recibiendo mensaje: '{e}'")
-                        break
-                else:    #NO ELEGISTE NI CONSULTAS NI REGISTROS
-                    print("Error... la opción que elegiste no es valida")
+
+                    repetirConsulta2 = 'S'
+                    while repetirConsulta2 == 'S':
+                        Edad = int(input(f"Escribe la EDAD a buscar: "))
+                        try:
+                            server_socket.send(Edad.encode())
+                        except Exception as e:
+                            print(f"Error recibiendo mensaje: '{e}'")
+                            break
+                        print("Escoge la opcion numericamente si quieres buscar una edad igual, mayor o menor a la que escribiste.")
+                        print("1. Igual que (Operador '=')")
+                        print("2. Mayor que (Operador '>')")
+                        print("3. Menor que (Operador '<')")
+                        Operador = input(f"Ingresa el numero del operador que quieres usar: ")
+                        if(Operador==1): #SELECCIONO IGUAL QUE
+                            try:
+                                server_socket.send(Operador.encode())
+                            except Exception as e:
+                                print(f"Error recibiendo mensaje: '{e}'")
+                                break
+                            try:
+                                infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
+                                print(f"El resultado de la consulta por la edad '{Edad}' es: '{infoConsulta}'")
+                            except Exception as e:
+                                print(f"Error recibiendo información: '{e}'")
+                                break
+                        elif(Operador==2): #SELECCIONO MAYOR QUE
+                            try:
+                                server_socket.send(Operador.encode())
+                            except Exception as e:
+                                print(f"Error recibiendo mensaje: '{e}'")
+                                break
+                            try:
+                                infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
+                                print(f"El resultado de la consulta por la edad '{Edad}' es: '{infoConsulta}'")
+                            except Exception as e:
+                                print(f"Error recibiendo información: '{e}'")
+                                break
+                        elif(Operador==3): #SELECCIONO MENOR QUE
+                            try:
+                                server_socket.send(Operador.encode())
+                            except Exception as e:
+                                print(f"Error recibiendo mensaje: '{e}'")
+                                break
+                            try:
+                                infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
+                                print(f"El resultado de la consulta por la edad '{Edad}' es: '{infoConsulta}'")
+                            except Exception as e:
+                                print(f"Error recibiendo información: '{e}'")
+                                break
+                            print("ERROR!!! no ingresaste el numero de un operador valido")
+                        else:    #NO ELEGISTE NI CONSULTAS NI REGISTROS
+                            print("Error... la opción que elegiste no es valida")
+                            repetirConsulta2 = input("No escogiste una de las 3 opciones. Desea volver a intentarlo? S/N " )
                     
-                print("Ahora tienes que escoger la opcion numericamente de si quieres buscar una edad igual, mayor o menor a la que escribiste.")
-                print("1. Igual que (Operador '=')")
-                print("2. Mayor que (Operador '>')")
-                print("3. Menor que (Operador '<')")
-                Operador = input(f"Ingresa el numero del operador que quieres usar: ")
-                if(Operador==1): #SELECCIONO IGUAL QUE
-                    try:
-                        server_socket.send(Operador.encode())
-                    except Exception as e:
-                        print(f"Error recibiendo mensaje: '{e}'")
-                        break
-                    try:
-                        infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
-                        print(f"El resultado de la consulta por la edad '{Edad}' es: '{infoConsulta}'")
-                    except Exception as e:
-                        print(f"Error recibiendo información: '{e}'")
-                        break
-                elif(Operador==2): #SELECCIONO MAYOR QUE
-                    try:
-                        server_socket.send(Operador.encode())
-                    except Exception as e:
-                        print(f"Error recibiendo mensaje: '{e}'")
-                        break
-                    try:
-                        infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
-                        print(f"El resultado de la consulta por la edad '{Edad}' es: '{infoConsulta}'")
-                    except Exception as e:
-                        print(f"Error recibiendo información: '{e}'")
-                        break
-                elif(Operador==3): #SELECCIONO MENOR QUE
-                    try:
-                        server_socket.send(Operador.encode())
-                    except Exception as e:
-                        print(f"Error recibiendo mensaje: '{e}'")
-                        break
-                    try:
-                        infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
-                        print(f"El resultado de la consulta por la edad '{Edad}' es: '{infoConsulta}'")
-                    except Exception as e:
-                        print(f"Error recibiendo información: '{e}'")
-                        break
-                    print("ERROR!!! no ingresaste el numero de un operador valido")
-            elif(Criterio == "4"): #SEXO
-                Genero = input(f"Ahora escribe el sexo (0 para Masculino, 1 para Femenino): ")
-                if(Genero==0 or Genero == 1): # TIENE QUE INGRESAR EL SEXO MASCULINO O FEMENINO
-                    try:
-                        server_socket.send(Genero.encode())
-                    except Exception as e:
-                        print(f"Error recibiendo mensaje: '{e}'")
-                        break
-                    try:
-                        infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
-                        print(f"El resultado de la consulta por el sexo '{Genero}' es: '{infoConsulta}'")
-                    except Exception as e:
-                        print(f"Error recibiendo información: '{e}'")
-                        break
+               
+                elif(Criterio == "4"): #SEXO
+                    repetirConsulta3 = 'S'
+                    while repetirConsulta3 == 'S'
+                        Genero = input(f"Ahora escribe el sexo (0 para Masculino, 1 para Femenino): ")
+                        if(Genero==0 or Genero == 1): # TIENE QUE INGRESAR EL SEXO MASCULINO O FEMENINO
+                            try:
+                                server_socket.send(Genero.encode())
+                            except Exception as e:
+                                print(f"Error recibiendo mensaje: '{e}'")
+                                break
+                            try:
+                                infoConsulta = server_socket.recv(1024).decode(encoding='utf-8')
+                                print(f"El resultado de la consulta por el sexo '{Genero}' es: '{infoConsulta}'")
+                            except Exception as e:
+                                print(f"Error recibiendo información: '{e}'")
+                                break
+                        else:
+                            print("Error... La opción que elegiste no es valida. Debe elegir entre 0 para Masculino o 1 para Femenino ")
+                            repetirConsulta3 = input("Desea intentarlo nuevamente?(S/N):") #REPETIR CICLO?
                 else:
-                    print("ERROR!!! no ingresaste un sexo valido")
-            else:
-                print("ERROR!")
-            repetirConsulta1 = input("Desea intentarlo nuevamente?(S/N):") #REPETIR CICLO?
+                    print("Error... La opción que elegiste no es valida")
+                    repetirConsulta1 = input("Desea intentarlo nuevamente?(S/N):") #REPETIR CICLO?
         elif(opcion == 2): #REGISTROS
             Nombre = input(f"Ingresa el nombre del nuevo registro: ") #INGRESAR NOMBRE
             try:
@@ -187,11 +195,11 @@ def send_data():
             except Exception as e:
                 print(f"Error recibiendo mensaje: '{e}'")
                 break
-            repetir = input("Desea realizar otra opcion?(S/N):") #REPETIR CICLO?
+            
         else: #NO ELEGISTE NI CONSULTAS NI REGISTROS
-            print("Error la opción que elegiste no es valida")
-            print("Terminando el programa")
-            repetir == 'N' #TERMINAR CICLO
+            print("Error... La opción que elegiste no es valida")
+            repetir == input("Desea intentarlo nuevamente?(S/N):") #REPETIR CICLO?
+            
 
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
