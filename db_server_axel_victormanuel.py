@@ -7,8 +7,6 @@ Feregrino Zamorano Victor Manuel
 import socket
 import threading
 import pandas as pd
-#import time
-#import json
 
 # Leer la documentación siguiendo este orden:
 # 1. Leer if __name__ == "__main__":
@@ -122,6 +120,7 @@ def handle_client(client_socket, addr):
                             if not Genero:
                                 print(f"Conexion con '{addr}' cerrada.")
                                 break
+                            Genero = int(Genero)
                             print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Genero}','Genero','1')")
                             Resultado = consultas(Genero,"Genero",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
                             mensaje = "La consulta dio como resultado esto: '"
@@ -176,15 +175,24 @@ def handle_client(client_socket, addr):
                 broadcastAlClienteActual(Mensaje, client_socket) #ENVIAMOS EL MENSAJE
                 #print("Esperando 5 segundos antes de volver a iniciar el ciclo")# Establecer un tiempo de espera para la recepción de datos
                 #time.sleep(5)
-            elif(opcion == "N"):
-                broadcastAlClienteActual(opcion, client_socket) 
+            #elif(opcion == "N"):
+                #broadcastAlClienteActual(opcion, client_socket) 
             else:
                 print("ERROR, saliendo del programa")
                 repetir = 'N'
+            print("Esperando si el cliente quiere volver a realizar el proceso")
+            repetir = client_socket.recv(1024).decode() #Recibe si el cliente quiere repetir el programa
+            if not repetir:
+                print(f"Conexion con '{addr}' cerrada.")
+                break
+            if(repetir == "N"):
+                print("El cliente decidio que no")
+                broadcastAlClienteActual(repetir, client_socket) 
         except Exception as e:
             client_socket.close()
             print(f"Conexion con cliente '{addr}' perdida por: '{e}'")
             break
+        print(f"El cliente '{addr}' se ha desconectado")
 
 def broadcastAlClienteActual(message, sender_socket): #Funcion para enviar mensajes al cliente que esta solicitando datos
     print("Entra al metodo 'broadcastToCurrentClient'")
