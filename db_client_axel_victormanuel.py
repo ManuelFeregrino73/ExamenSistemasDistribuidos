@@ -7,10 +7,7 @@ Feregrino Zamorano Victor Manuel
 import socket
 import threading
 import time
-#import queue
 
-
-#data_queue = queue.Queue() # Crear una cola para compartir datos entre hilos
 InformacionRecibida = []
 
 #MiUsuario = "Absalon" #Ejemplo de un usuario
@@ -136,7 +133,7 @@ def send_data():
                     repetirConsulta3 = 'S'
                     while repetirConsulta3 == 'S':
                         Genero = input(f"Ahora escribe el sexo (0 para Masculino, 1 para Femenino): ")
-                        if(Genero==0 or Genero == 1): # TIENE QUE INGRESAR EL SEXO MASCULINO O FEMENINO
+                        if(Genero=="0" or Genero == "1"): # TIENE QUE INGRESAR EL SEXO MASCULINO O FEMENINO DE ACUERDO A COMO SE GUARDO EN 'BOOLEANO'
                             try:
                                 server_socket.send(Genero.encode())
                             except Exception as e:
@@ -198,7 +195,8 @@ def send_data():
                 print(f"Error recibiendo mensaje: '{e}'")
                 break
             print("Se han enviado los datos al servidor")
-            #infoinsercion = data_queue.get() # Obtener el mensaje de la cola
+            print("Esperando 5 segundos para recibir el mensaje")
+            time.sleep(5) #Creo que es necesario usar time para poder captar la informacion del servidor
             infoinsercion = InformacionRecibida[0]
             InformacionRecibida.pop(0)
             print(f"Se obtuvo este resultado: '{infoinsercion}'") #Se imprime la informacion con el formato dado por el servidor
@@ -208,12 +206,11 @@ def send_data():
             print("Error la opción que elegiste no es valida")
             print("Terminando el programa")
             repetir == 'N' #TERMINAR CICLO
-        if(repetir=='N'):#Si pone solo una N, es para cerrar todo el programa para el cliente
-            try:
-                server_socket.send(repetir.encode())
-            except Exception as e:
-                print(f"Error recibiendo mensaje: '{e}'")
-                break
+        try: #Envia al servidor la opcion que haya elegido el usuario sobre si repetir todo el programa
+            server_socket.send(repetir.encode())
+        except Exception as e:
+            print(f"Error recibiendo mensaje: '{e}'")
+            break
 
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
