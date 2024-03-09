@@ -8,25 +8,19 @@ import socket
 import threading
 import pandas as pd
 
-# Leer la documentación siguiendo este orden:
-# 1. Leer if __name__ == "__main__":
-# 2. Leer start_server()
-# 3. Leer handle_client()
-# 4. Leer broadcast()
 columnas = ["Nombre","Password","Genero","Edad","Email"]
 
 # Handle Client: Recibe un socket de un cliente y una dirección IP.
 def handle_client(client_socket, addr): 
-    #nickname = client_socket.recv(1024).decode()
-    #print(f"El nickname es: '{nickname}'") #Se comprueba que salga bien el nuevo nombre del usuario dentro del servidor
     repetir = 'S'
     while repetir == 'S':
-       # print("Se inicio otra vez el ciclo")
+        #print("Se inicio otra vez el ciclo")        
         try:
             opcion = client_socket.recv(1024).decode() #Recibe la opcion del cliente
             if not opcion:
                 print(f"Conexion con '{addr}' cerrada.")
                 break
+            print("-------------------------")
             if(opcion == "1"): #CONSULTAS 
                 repetirConsulta1 = 'S'
                 while  repetirConsulta1 == 'S':
@@ -42,21 +36,24 @@ def handle_client(client_socket, addr):
                             break
                         print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Nombre}','Nombre','1')")
                         Resultado = consultas(Nombre,"Nombre",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
-                        mensaje = " "
-                        indicesResultado = Resultado.index.tolist()
-                      #  print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
-                        for indice in indicesResultado:
-                            if(Resultado["Genero"][indice]==0):
+                        mensaje = " " #Vamor a armar el mensaje concatenandole el resultado de la consulta
+                        indicesResultado = Resultado.index.tolist() #Captamos el numero o indice de los registros para usarlos en el for
+                        #print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
+                        print("----------")
+                        for indice in indicesResultado: #For para recorrer cada uno de los registros que hayan salido de resultado
+                            if(Resultado["Genero"][indice]==0): #Cambiamos los valores 'Booleanos' del campo 'Genero' por un texto correspondiente
                                 Resultado["Genero"][indice]="Masculino"
                             else:
                                 Resultado["Genero"][indice]="Femenino"
-                            for columna in columnas:
+                            for columna in columnas: #For para recorrer los campos o columnas del registro
                                 print(f"La columna '{columna}' en la fila con índice {indice} es: {Resultado[columna][indice]}")
-                                if(columna==columnas[len(columnas)-1]):
+                                if(columna==columnas[len(columnas)-1]): #Se concatenan los resultados en un solo texto para enviarlo al cliente, dependiendo de si es el ultimo campo o no se pone una ',' o un '.'
                                     mensaje += f"{Resultado[columna][indice]}'. "
                                 else:
                                     mensaje += f"{Resultado[columna][indice]}, "
-                        broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
+                            print("----------")
+                        print("--------------------")
+                        broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje armado al cliente
                     elif(Criterio == "2"): #EMAIL
                         Email = client_socket.recv(1024).decode()
                         if not Email:
@@ -64,21 +61,24 @@ def handle_client(client_socket, addr):
                             break
                         print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Email}','Email','1')")
                         Resultado = consultas(Email,"Email",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
-                        mensaje = " "
-                        indicesResultado = Resultado.index.tolist()
-                        print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
-                        for indice in indicesResultado:
-                            if(Resultado["Genero"][indice]==0):
+                        mensaje = " " #Vamor a armar el mensaje concatenandole el resultado de la consulta
+                        indicesResultado = Resultado.index.tolist() #Captamos el numero o indice de los registros para usarlos en el for
+                        #print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
+                        print("----------")
+                        for indice in indicesResultado: #For para recorrer cada uno de los registros que hayan salido de resultado
+                            if(Resultado["Genero"][indice]==0): #Cambiamos los valores 'Booleanos' del campo 'Genero' por un texto correspondiente
                                 Resultado["Genero"][indice]="Masculino"
                             else:
                                 Resultado["Genero"][indice]="Femenino"
-                            for columna in columnas:
+                            for columna in columnas: #For para recorrer los campos o columnas del registro
                                 print(f"La columna '{columna}' en la fila con índice {indice} es: {Resultado[columna][indice]}")
-                                if(columna==columnas[len(columnas)-1]):
+                                if(columna==columnas[len(columnas)-1]): #Se concatenan los resultados en un solo texto para enviarlo al cliente, dependiendo de si es el ultimo campo o no se pone una ',' o un '.'
                                     mensaje += f"{Resultado[columna][indice]}'. "
                                 else:
                                     mensaje += f"{Resultado[columna][indice]}, "
-                        broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
+                            print("----------")
+                        print("--------------------")
+                        broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje armado al cliente
                     elif(Criterio == "3"): #EDAD
                         repetirConsulta2 = 'S'
                         while repetirConsulta2 == 'S':
@@ -94,22 +94,25 @@ def handle_client(client_socket, addr):
                             Operador = int(Operador)
                             print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Edad}','Edad','{Operador}')")
                             Resultado = consultas(Edad,"Edad",Operador) #Le mandamos a la funcion 'consultas' el valor de edad, el nombre de la columna y su operador
-                            mensaje = " "
-                            indicesResultado = Resultado.index.tolist()
-                            print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
-                            for indice in indicesResultado:
-                                if(Resultado["Genero"][indice]==0):
+                            mensaje = " " #Vamor a armar el mensaje concatenandole el resultado de la consulta
+                            indicesResultado = Resultado.index.tolist() #Captamos el numero o indice de los registros para usarlos en el for
+                            #print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
+                            print("----------")
+                            for indice in indicesResultado: #For para recorrer cada uno de los registros que hayan salido de resultado
+                                if(Resultado["Genero"][indice]==0): #Cambiamos los valores 'Booleanos' del campo 'Genero' por un texto correspondiente
                                     Resultado["Genero"][indice]="Masculino"
                                 else:
                                     Resultado["Genero"][indice]="Femenino"
-                                for columna in columnas:
+                                for columna in columnas: #For para recorrer los campos o columnas del registro
                                     print(f"La columna '{columna}' en la fila con índice {indice} es: {Resultado[columna][indice]}")
-                                    if(columna==columnas[len(columnas)-1]):
+                                    if(columna==columnas[len(columnas)-1]): #Se concatenan los resultados en un solo texto para enviarlo al cliente, dependiendo de si es el ultimo campo o no se pone una ',' o un '.'
                                         mensaje += f"{Resultado[columna][indice]}'. "
                                     else:
                                         mensaje += f"{Resultado[columna][indice]}, "
-                            broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
-                            repetirConsulta2 = client_socket.recv(1024).decode()
+                                print("----------")
+                            print("--------------------")
+                            broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje armado al cliente
+                            repetirConsulta2 = client_socket.recv(1024).decode() #Esperamos respuesta de si el cliente quiere hacer otra consulta de la 'Edad'
                             if not repetirConsulta2:
                                 print(f"Conexion con '{addr}' cerrada.")
                                 break
@@ -123,26 +126,29 @@ def handle_client(client_socket, addr):
                             Genero = int(Genero)
                             print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Genero}','Genero','1')")
                             Resultado = consultas(Genero,"Genero",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
-                            mensaje = " "
-                            indicesResultado = Resultado.index.tolist()
-                            print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
-                            for indice in indicesResultado:
-                                if(Resultado["Genero"][indice]==0):
+                            mensaje = " " #Vamor a armar el mensaje concatenandole el resultado de la consulta
+                            indicesResultado = Resultado.index.tolist() #Captamos el numero o indice de los registros para usarlos en el for
+                            #print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
+                            print("----------")
+                            for indice in indicesResultado: #For para recorrer cada uno de los registros que hayan salido de resultado
+                                if(Resultado["Genero"][indice]==0): #Cambiamos los valores 'Booleanos' del campo 'Genero' por un texto correspondiente
                                     Resultado["Genero"][indice]="Masculino"
                                 else:
                                     Resultado["Genero"][indice]="Femenino"
-                                for columna in columnas:
+                                for columna in columnas: #For para recorrer los campos o columnas del registro
                                     print(f"La columna '{columna}' en la fila con índice {indice} es: {Resultado[columna][indice]}")
-                                    if(columna==columnas[len(columnas)-1]):
+                                    if(columna==columnas[len(columnas)-1]): #Se concatenan los resultados en un solo texto para enviarlo al cliente, dependiendo de si es el ultimo campo o no se pone una ',' o un '.'
                                         mensaje += f"{Resultado[columna][indice]}'. "
                                     else:
                                         mensaje += f"{Resultado[columna][indice]}, "
-                            broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
-                            repetirConsulta3 = client_socket.recv(1024).decode()
+                                print("----------")
+                            print("--------------------")
+                            broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje armado al cliente
+                            repetirConsulta3 = client_socket.recv(1024).decode() #Esperamos respuesta de si el cliente quiere hacer otra consulta del 'Genero'
                             if not repetirConsulta3:
                                 print(f"Conexion con '{addr}' cerrada.")
                                 break
-                    repetirConsulta1 = client_socket.recv(1024).decode()
+                    repetirConsulta1 = client_socket.recv(1024).decode() #Esperamos respuesta de si el cliente quiere hacer otra consulta en general
                     if not repetirConsulta1:
                         print(f"Conexion con '{addr}' cerrada.")
                         break
@@ -171,12 +177,10 @@ def handle_client(client_socket, addr):
                     print(f"Conexion con '{addr}' cerrada.")
                     break
                 Mensaje = "La inserción se realizo y es la siguiente: '"+insercion(Nombre,Password,Genero,Edad,Email)+"'." #FORMAMOS EL MENSAJE QUE SE ENVIA AL CLIENTE
+                print("--------------------")
                 print(f"El mensaje es: '{Mensaje}'")
+                print("--------------------")
                 broadcastAlClienteActual(Mensaje, client_socket) #ENVIAMOS EL MENSAJE
-                #print("Esperando 5 segundos antes de volver a iniciar el ciclo")# Establecer un tiempo de espera para la recepción de datos
-                #time.sleep(5)
-            #elif(opcion == "N"):
-                #broadcastAlClienteActual(opcion, client_socket) 
             else:
                 print("ERROR, saliendo del programa")
                 repetir = 'N'
@@ -185,7 +189,7 @@ def handle_client(client_socket, addr):
             if not repetir:
                 print(f"Conexion con '{addr}' cerrada.")
                 break
-            if(repetir == "N"):
+            if(repetir == "N"): #Este if es para enviarle al cliente la misma respuesta que envio para que tambien termine su hilo de recibir mensajes
                 print("El cliente decidio que no")
                 broadcastAlClienteActual(repetir, client_socket) 
         except Exception as e:
@@ -193,6 +197,7 @@ def handle_client(client_socket, addr):
             print(f"Conexion con cliente '{addr}' perdida por: '{e}'")
             break
         print(f"El cliente '{addr}' se ha desconectado")
+        print("---------------------------------------")
 
 def broadcastAlClienteActual(message, sender_socket): #Funcion para enviar mensajes al cliente que esta solicitando datos
    # print("Entra al metodo 'broadcastToCurrentClient'")
