@@ -7,6 +7,8 @@ Feregrino Zamorano Victor Manuel
 import socket
 import threading
 import pandas as pd
+#import time
+#import json
 
 # Leer la documentación siguiendo este orden:
 # 1. Leer if __name__ == "__main__":
@@ -17,6 +19,8 @@ columnas = ["Nombre","Password","Genero","Edad","Email"]
 
 # Handle Client: Recibe un socket de un cliente y una dirección IP.
 def handle_client(client_socket, addr): 
+    #nickname = client_socket.recv(1024).decode()
+    #print(f"El nickname es: '{nickname}'") #Se comprueba que salga bien el nuevo nombre del usuario dentro del servidor
     repetir = 'S'
     while repetir == 'S':
         print("Se inicio otra vez el ciclo")
@@ -40,7 +44,21 @@ def handle_client(client_socket, addr):
                             break
                         print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Nombre}','Nombre','1')")
                         Resultado = consultas(Nombre,"Nombre",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
-            
+                        mensaje = "La consulta dio como resultado esto: '"
+                        indicesResultado = Resultado.index.tolist()
+                        print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
+                        for indice in indicesResultado:
+                            if(Resultado["Genero"][indice]==0):
+                                Resultado["Genero"][indice]="Masculino"
+                            else:
+                                Resultado["Genero"][indice]="Femenino"
+                            for columna in columnas:
+                                print(f"La columna '{columna}' en la fila con índice {indice} es: {Resultado[columna][indice]}")
+                                if(columna==columnas[len(columnas)-1]):
+                                    mensaje += f"{Resultado[columna][indice]}'. "
+                                else:
+                                    mensaje += f"{Resultado[columna][indice]}, "
+                        broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
                     elif(Criterio == "2"): #EMAIL
                         Email = client_socket.recv(1024).decode()
                         if not Email:
@@ -48,12 +66,24 @@ def handle_client(client_socket, addr):
                             break
                         print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Email}','Email','1')")
                         Resultado = consultas(Email,"Email",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
-                    
-                    
+                        mensaje = "La consulta dio como resultado esto: '"
+                        indicesResultado = Resultado.index.tolist()
+                        print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
+                        for indice in indicesResultado:
+                            if(Resultado["Genero"][indice]==0):
+                                Resultado["Genero"][indice]="Masculino"
+                            else:
+                                Resultado["Genero"][indice]="Femenino"
+                            for columna in columnas:
+                                print(f"La columna '{columna}' en la fila con índice {indice} es: {Resultado[columna][indice]}")
+                                if(columna==columnas[len(columnas)-1]):
+                                    mensaje += f"{Resultado[columna][indice]}'. "
+                                else:
+                                    mensaje += f"{Resultado[columna][indice]}, "
+                        broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
                     elif(Criterio == "3"): #EDAD
                         repetirConsulta2 = 'S'
                         while repetirConsulta2 == 'S':
-                        
                             Edad = client_socket.recv(1024).decode() #Recibo primero la edad
                             if not Edad:
                                 print(f"Conexion con '{addr}' cerrada.")
@@ -66,7 +96,25 @@ def handle_client(client_socket, addr):
                             Operador = int(Operador)
                             print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Edad}','Edad','{Operador}')")
                             Resultado = consultas(Edad,"Edad",Operador) #Le mandamos a la funcion 'consultas' el valor de edad, el nombre de la columna y su operador
-
+                            mensaje = "La consulta dio como resultado esto: '"
+                            indicesResultado = Resultado.index.tolist()
+                            print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
+                            for indice in indicesResultado:
+                                if(Resultado["Genero"][indice]==0):
+                                    Resultado["Genero"][indice]="Masculino"
+                                else:
+                                    Resultado["Genero"][indice]="Femenino"
+                                for columna in columnas:
+                                    print(f"La columna '{columna}' en la fila con índice {indice} es: {Resultado[columna][indice]}")
+                                    if(columna==columnas[len(columnas)-1]):
+                                        mensaje += f"{Resultado[columna][indice]}'. "
+                                    else:
+                                        mensaje += f"{Resultado[columna][indice]}, "
+                            broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
+                            repetirConsulta2 = client_socket.recv(1024).decode()
+                            if not repetirConsulta2:
+                                print(f"Conexion con '{addr}' cerrada.")
+                                break
                     elif(Criterio == "4"): #GENERO
                         repetirConsulta3 = 'S'
                         while repetirConsulta3 == 'S':
@@ -76,23 +124,31 @@ def handle_client(client_socket, addr):
                                 break
                             print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Genero}','Genero','1')")
                             Resultado = consultas(Genero,"Genero",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
-                    mensaje = "La consulta dio como resultado esto: '"
-                    indicesResultado = Resultado.index.tolist()
-                    print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
-                    for indice in indicesResultado:
-                        if(Resultado["Genero"][indice]==0):
-                            Resultado["Genero"][indice]="Masculino"
-                        else:
-                            Resultado["Genero"][indice]="Femenino"
-                        for columna in columnas:
-                            print(f"El nombre en la fila con índice {indice} es: {Resultado[columna][indice]}")                        
-                            if(columna==columnas[len(columnas)-1]):
-                                mensaje += f"{Resultado[columna][indice]}'. "
-                            else:
-                                mensaje += f"{Resultado[columna][indice]}, "
-                    broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
-                #print("Esperando 5 segundos antes de volver a iniciar el ciclo")# Establecer un tiempo de espera para la recepción de datos
-                #time.sleep(5)
+                            mensaje = "La consulta dio como resultado esto: '"
+                            indicesResultado = Resultado.index.tolist()
+                            print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
+                            for indice in indicesResultado:
+                                if(Resultado["Genero"][indice]==0):
+                                    Resultado["Genero"][indice]="Masculino"
+                                else:
+                                    Resultado["Genero"][indice]="Femenino"
+                                for columna in columnas:
+                                    print(f"La columna '{columna}' en la fila con índice {indice} es: {Resultado[columna][indice]}")
+                                    if(columna==columnas[len(columnas)-1]):
+                                        mensaje += f"{Resultado[columna][indice]}'. "
+                                    else:
+                                        mensaje += f"{Resultado[columna][indice]}, "
+                            broadcastAlClienteActual(mensaje, client_socket) #Se envia el mensaje, solo que el cliente va a ser el que le de formato
+                            repetirConsulta3 = client_socket.recv(1024).decode()
+                            if not repetirConsulta3:
+                                print(f"Conexion con '{addr}' cerrada.")
+                                break
+                    repetirConsulta1 = client_socket.recv(1024).decode()
+                    if not repetirConsulta1:
+                        print(f"Conexion con '{addr}' cerrada.")
+                        break
+                    #print("Esperando 5 segundos antes de volver a iniciar el ciclo")# Establecer un tiempo de espera para la recepción de datos
+                    #time.sleep(5)
             elif(opcion == "2"): #INSERTAR REGISTROS
                 print(f"El cliente '{addr}' eligio hacer una insercion")
                 Nombre = client_socket.recv(1024).decode()
