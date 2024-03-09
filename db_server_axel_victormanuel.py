@@ -21,7 +21,7 @@ def handle_client(client_socket, addr):
     #print(f"El nickname es: '{nickname}'") #Se comprueba que salga bien el nuevo nombre del usuario dentro del servidor
     repetir = 'S'
     while repetir == 'S':
-        print("Se inicio otra vez el ciclo")
+       # print("Se inicio otra vez el ciclo")
         try:
             opcion = client_socket.recv(1024).decode() #Recibe la opcion del cliente
             if not opcion:
@@ -42,9 +42,9 @@ def handle_client(client_socket, addr):
                             break
                         print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Nombre}','Nombre','1')")
                         Resultado = consultas(Nombre,"Nombre",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
-                        mensaje = "La consulta dio como resultado esto: '"
+                        mensaje = " "
                         indicesResultado = Resultado.index.tolist()
-                        print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
+                      #  print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
                         for indice in indicesResultado:
                             if(Resultado["Genero"][indice]==0):
                                 Resultado["Genero"][indice]="Masculino"
@@ -64,7 +64,7 @@ def handle_client(client_socket, addr):
                             break
                         print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Email}','Email','1')")
                         Resultado = consultas(Email,"Email",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
-                        mensaje = "La consulta dio como resultado esto: '"
+                        mensaje = " "
                         indicesResultado = Resultado.index.tolist()
                         print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
                         for indice in indicesResultado:
@@ -94,7 +94,7 @@ def handle_client(client_socket, addr):
                             Operador = int(Operador)
                             print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Edad}','Edad','{Operador}')")
                             Resultado = consultas(Edad,"Edad",Operador) #Le mandamos a la funcion 'consultas' el valor de edad, el nombre de la columna y su operador
-                            mensaje = "La consulta dio como resultado esto: '"
+                            mensaje = " "
                             indicesResultado = Resultado.index.tolist()
                             print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
                             for indice in indicesResultado:
@@ -123,7 +123,7 @@ def handle_client(client_socket, addr):
                             Genero = int(Genero)
                             print(f"Se estan enviando estos 3 parametros a 'consultas()': ('{Genero}','Genero','1')")
                             Resultado = consultas(Genero,"Genero",1) #Enviamos el valor con el que se compara, el nombre de la columna y el 1 como si fuera el '=='
-                            mensaje = "La consulta dio como resultado esto: '"
+                            mensaje = " "
                             indicesResultado = Resultado.index.tolist()
                             print("Los índices de los registros que cumplen con la condición son:", indicesResultado)
                             for indice in indicesResultado:
@@ -195,16 +195,16 @@ def handle_client(client_socket, addr):
         print(f"El cliente '{addr}' se ha desconectado")
 
 def broadcastAlClienteActual(message, sender_socket): #Funcion para enviar mensajes al cliente que esta solicitando datos
-    print("Entra al metodo 'broadcastToCurrentClient'")
+   # print("Entra al metodo 'broadcastToCurrentClient'")
     for client in clients:
-        print(f"El socket del cliente es: '{client}', y el del argumento es: '{sender_socket}'")
+       # print(f"El socket del cliente es: '{client}', y el del argumento es: '{sender_socket}'")
         if client == sender_socket:
             try:
                 #print(message.encode())
                 #print(f"{cuentas[nombreUsuario]}:{message.encode()}")
                 #mensaje = "\n"+nombreUsuario+": "+message
                 #mensaje = "Tu consulta es: "+message
-                print(f"El mensaje debería verse así: '{message}'")
+             #   print(f"El mensaje debería verse así: '{message}'")
                 client.send(message.encode())
             except Exception as e:
                 print(f"Error enviando mensaje: '{e}'")
@@ -281,3 +281,4 @@ clients = []
 if __name__ == "__main__":
     # Se ejecuta el método del servidor
     start_server()
+
