@@ -22,7 +22,7 @@ def receive_information():
                 repetir = 'N'
                 break
             InformacionRecibida.append(message)
-            print(f"El mensaje ha sido recibido y se ha agregado a la lista 'InformacionRecibida': '{InformacionRecibida}'")
+           # print(f"El mensaje ha sido recibido y se ha agregado a la lista 'InformacionRecibida': '{InformacionRecibida}'")
             #data_queue.put(message)  # Agregar el mensaje a la cola
             #print(message)
         except Exception as e:
@@ -75,13 +75,13 @@ def send_data():
                         print(f"Error recibiendo mensaje: '{e}'")
                         break
                     #infoConsulta = data_queue.get()
-                    print("El mensaje va a ser utilizado")
+                    #print("El mensaje va a ser utilizado")
                     print("Esperando 5 segundos para recibir el mensaje")
                     time.sleep(5) #Creo que es necesario usar time para poder captar la informacion del servidor
                     infoConsulta = InformacionRecibida[0]
-                    print(f"El mensaje debería verse asi: '{InformacionRecibida[0]}'")
+                    #print(f"El mensaje debería verse asi: '{InformacionRecibida[0]}'")
                     InformacionRecibida.pop(0)
-                    print(f"El mensaje ha sido borrado de informacionRecibida: '{InformacionRecibida}'")
+                    #print(f"El mensaje ha sido borrado de informacionRecibida: '{InformacionRecibida}'")
                     print(f"El resultado de la consulta por el nombre '{Nombre}' es: '{infoConsulta}'")
                 elif(Criterio == "2"): #EMAIL
                     Email = input(f"Ahora escribe el email: ")
@@ -142,6 +142,7 @@ def send_data():
                             print("Esperando 5 segundos para recibir el mensaje")
                             time.sleep(5) #Creo que es necesario usar time para poder captar la informacion del servidor
                             infoConsulta = InformacionRecibida[0]
+                            InformacionRecibida.pop(0)
                             print(f"El resultado de la consulta por el sexo '{Genero}' es: '{infoConsulta}'")
                         else:
                             print("Error... La opción que elegiste no es valida. Debe elegir entre 0 para Masculino o 1 para Femenino ")
@@ -194,13 +195,13 @@ def send_data():
             except Exception as e:
                 print(f"Error recibiendo mensaje: '{e}'")
                 break
-            print("Se han enviado los datos al servidor")
+           # print("Se han enviado los datos al servidor")
             print("Esperando 5 segundos para recibir el mensaje")
             time.sleep(5) #Creo que es necesario usar time para poder captar la informacion del servidor
             infoinsercion = InformacionRecibida[0]
             InformacionRecibida.pop(0)
             print(f"Se obtuvo este resultado: '{infoinsercion}'") #Se imprime la informacion con el formato dado por el servidor
-            print("Ya termino la parte de recibir informacion")
+          #  print("Ya termino la parte de recibir informacion")
             repetir = input("Desea realizar otra opcion?(S/N):") #REPETIR CICLO?
         else: #NO ELEGISTE NI CONSULTAS NI REGISTROS
             print("Error la opción que elegiste no es valida")
@@ -222,3 +223,4 @@ receive_thread.start()
 
 send_thread = threading.Thread(target=send_data)
 send_thread.start()
+
